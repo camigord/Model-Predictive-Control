@@ -1,3 +1,8 @@
+/*
+Most of the code in this file was taken or adapted from the "Mind The Line" project provided by UDACITY
+https://github.com/udacity/CarND-MPC-Quizzes
+*/
+
 #include "MPC.h"
 #include <cppad/cppad.hpp>
 #include <cppad/ipopt/solve.hpp>
@@ -58,6 +63,7 @@ class FG_eval {
       fg[0] += 50*CppAD::pow(vars[delta_start + t], 2);
       fg[0] += 50*CppAD::pow(vars[a_start + t], 2);
 
+      // This idea was taken from [Jeremy Shannon](https://github.com/jeremy-shannon/CarND-MPC-Project)
       // try to penalize large steering angles at high speed
       fg[0] += 500*CppAD::pow(vars[delta_start + t] * vars[v_start+t], 2);
     }
@@ -101,12 +107,11 @@ class FG_eval {
       AD<double> delta0 = vars[delta_start + t - 1];
       AD<double> a0 = vars[a_start + t - 1];
 
-
+      // The idea of dealing with latency here was taken from [Jeremy Shannon](https://github.com/jeremy-shannon/CarND-MPC-Project)
       if (t > 1) {   // use previous actuations (to account for latency)
         a0 = vars[a_start + t - 2];
         delta0 = vars[delta_start + t - 2];
       }
-
 
       AD<double> f0 = coeffs[0] + coeffs[1]*x0 + coeffs[2]*CppAD::pow(x0,2) + coeffs[3]*CppAD::pow(x0,3);
       AD<double> psides0 = CppAD::atan(coeffs[1] + (2*coeffs[2]*x0) + (3*coeffs[3]*CppAD::pow(x0,2)));
